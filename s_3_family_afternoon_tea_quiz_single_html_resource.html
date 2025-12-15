@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>S3 Family Afternoon Tea Quiz!</title>
+  <style>
+    :root{
+      --bg1:#fff7d6;
+      --bg2:#e8f7ff;
+      --ink:#1f2a37;
+      --muted:#4b5563;
+      --card:#ffffff;
+      --shadow: 0 10px 30px rgba(0,0,0,.10);
+      --shadow2: 0 6px 18px rgba(0,0,0,.10);
+      --primary:#2563eb;
+      --primary2:#7c3aed;
+      --good:#16a34a;
+      --warn:#f59e0b;
+      --bad:#dc2626;
+      --ring: 0 0 0 4px rgba(37, 99, 235, .20);
+      --radius: 22px;
+    }
+
+    *{box-sizing:border-box;}
+    html, body{height:100%;}
+    body{
+      margin:0;
+      color:var(--ink);
+      /* Primary-school friendly font stack */
+      font-family: ui-rounded, "Comic Sans MS", "Comic Sans", "Trebuchet MS", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 15% 10%, var(--bg2), transparent 55%),
+        radial-gradient(900px 500px at 85% 20%, #ffe3ef, transparent 60%),
+        radial-gradient(900px 500px at 30% 85%, #e8ffe9, transparent 55%),
+        linear-gradient(180deg, var(--bg1), #ffffff);
+      overflow-x:hidden;
+    }
+
+    /* Floating confetti dots */
+    .sprinkles{position:fixed; inset:0; pointer-events:none; opacity:.9;}
+    .sprinkle{position:absolute; width:10px; height:10px; border-radius:999px; filter: drop-shadow(0 4px 8px rgba(0,0,0,.08));
+      animation: floaty var(--dur, 8s) ease-in-out infinite;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0) translateX(0) rotate(0deg); }
+      50%{ transform: translateY(-25px) translateX(12px) rotate(12deg); }
+    }
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:5;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,.70);
+      border-bottom: 1px solid rgba(31,42,55,.08);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding: 18px 18px;}
+
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:14px;}
+    .brand{display:flex; align-items:center; gap:12px;}
+
+    .logo{
+      width:46px; height:46px; border-radius:16px;
+      background: conic-gradient(from 180deg, #22c55e, #60a5fa, #f472b6, #f59e0b, #22c55e);
+      box-shadow: var(--shadow2);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), transparent 45%);
+      animation: shimmer 3.8s linear infinite;
+    }
+    @keyframes shimmer{
+      0%{ transform: translateX(-20%) translateY(-10%); opacity:.7; }
+      50%{ transform: translateX(10%) translateY(8%); opacity:1; }
+      100%{ transform: translateX(-20%) translateY(-10%); opacity:.7; }
+    }
+
+    h1{font-size: clamp(22px, 3.2vw, 34px); margin:0; line-height:1.05;}
+    .subtitle{color:var(--muted); font-size: 14.5px; margin-top:4px;}
+
+    .pillrow{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end;}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, .08);
+      color: #1d4ed8;
+      font-weight:700;
+      font-size: 13px;
+      border: 1px solid rgba(37, 99, 235, .18);
+      user-select:none;
+    }
+    .pill span{font-size:16px;}
+
+    /* Main layout */
+    main{padding: 22px 0 70px;}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items:start;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns: 1fr;}
+      .pillrow{justify-content:flex-start;}
+    }
+
+    .card{
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(31,42,55,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:-80px;
+      background: radial-gradient(circle at 15% 15%, rgba(124,58,237,.15), transparent 40%),
+                  radial-gradient(circle at 90% 25%, rgba(37,99,235,.14), transparent 45%),
+                  radial-gradient(circle at 30% 90%, rgba(34,197,94,.12), transparent 45%);
+      pointer-events:none;
+    }
+
+    .card > *{position:relative;}
+
+    .sectionTitle{
+      display:flex; align-items:center; gap:10px;
+      margin: 2px 0 10px;
+    }
+    .badge{
+      width:36px; height:36px; border-radius:14px;
+      display:grid; place-items:center;
+      background: rgba(124,58,237,.10);
+      border: 1px solid rgba(124,58,237,.20);
+      box-shadow: 0 6px 14px rgba(124,58,237,.10);
+      font-size:18px;
+    }
+    h2{margin:0; font-size: 20px;}
+    p{margin: 10px 0; color: var(--muted); line-height:1.45;}
+
+    /* Buttons */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding: 11px 14px;
+      border-radius: 14px;
+      border: 0;
+      cursor:pointer;
+      font-weight:800;
+      letter-spacing:.2px;
+      transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
+      user-select:none;
+    }
+    .btn:active{transform: translateY(1px) scale(.99);}
+    .btnPrimary{
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color: white;
+      box-shadow: 0 12px 24px rgba(37,99,235,.25);
+    }
+    .btnPrimary:hover{filter: brightness(1.03);}
+    .btnSoft{
+      background: rgba(31,42,55,.06);
+      border: 1px solid rgba(31,42,55,.10);
+      color: var(--ink);
+    }
+    .btnSoft:hover{box-shadow: 0 10px 16px rgba(0,0,0,.08);}
+
+    .btnTiny{
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-weight:800;
+      font-size: 13px;
+    }
+
+    /* Step list */
+    .steps{display:grid; gap:10px; margin: 12px 0 0;}
+    .step{
+      display:flex; gap:12px; align-items:flex-start;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.75);
+      border: 1px dashed rgba(31,42,55,.18);
+    }
+    .num{
+      width:30px; height:30px; border-radius: 12px;
+      background: rgba(245,158,11,.18);
+      border: 1px solid rgba(245,158,11,.30);
+      display:grid; place-items:center;
+      font-weight:900;
+      color:#92400e;
+      flex: 0 0 auto;
+    }
+    .step strong{color: var(--ink);}
+
+    /* Question builder */
+    .builder{display:grid; gap:12px; margin-top: 14px;}
+    .row{display:grid; grid-template-columns: 1fr; gap:10px;}
+
+    label{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      font-weight:800;
+      color: var(--ink);
+      font-size: 14px;
+    }
+    .hint{font-weight:700; color: var(--muted); font-size: 12.5px;}
+
+    select, input[type="text"], textarea{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(31,42,55,.14);
+      background: rgba(255,255,255,.95);
+      outline:none;
+      font: inherit;
+      box-shadow: 0 1px 0 rgba(0,0,0,.03) inset;
+    }
+    textarea{min-height: 84px; resize: vertical;}
+
+    select:focus, input:focus, textarea:focus{ box-shadow: var(--ring); border-color: rgba(37,99,235,.45); }
+
+    .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top: 6px;}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(34,197,94,.10);
+      border: 1px solid rgba(34,197,94,.22);
+      color: #166534;
+      font-weight:800;
+      font-size: 13px;
+    }
+    .chip .x{
+      width:20px; height:20px; border-radius: 999px;
+      display:grid; place-items:center;
+      background: rgba(22,163,74,.14);
+      border: 1px solid rgba(22,163,74,.20);
+      cursor:pointer;
+      transition: transform .08s ease;
+    }
+    .chip .x:active{transform: scale(.95);}
+
+    .meter{
+      height: 12px;
+      background: rgba(31,42,55,.08);
+      border-radius: 999px;
+      overflow:hidden;
+      border: 1px solid rgba(31,42,55,.10);
+      margin-top: 8px;
+    }
+    .bar{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #60a5fa, #f472b6);
+      transition: width .25s ease;
+    }
+
+    .callout{
+      display:flex; gap:12px; align-items:flex-start;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(37,99,235,.08);
+      border: 1px solid rgba(37,99,235,.18);
+      color: #1d4ed8;
+      margin-top: 12px;
+    }
+    .callout .icon{font-size:20px;}
+    .callout strong{color:#1e40af;}
+
+    /* Trivia mini-game */
+    .gameTop{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+      margin-top: 6px;
+    }
+    .scoreboard{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .score{
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(245,158,11,.12);
+      border: 1px solid rgba(245,158,11,.25);
+      font-weight:900;
+      color:#92400e;
+      display:flex; gap:8px; align-items:center;
+    }
+    .toast{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(31,42,55,.10);
+      color: var(--muted);
+      min-height: 44px;
+    }
+
+    .qbox{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.80);
+      border: 1px solid rgba(31,42,55,.10);
+    }
+    .qbox h3{margin:0 0 6px; font-size: 18px;}
+
+    .options{display:grid; gap:10px; margin-top: 10px;}
+    .opt{
+      width:100%;
+      text-align:left;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(31,42,55,.14);
+      background: rgba(255,255,255,.95);
+      cursor:pointer;
+      font-weight:900;
+      transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .opt:hover{box-shadow: 0 12px 20px rgba(0,0,0,.08);}
+    .opt:active{transform: translateY(1px) scale(.995);}
+    .opt.correct{border-color: rgba(22,163,74,.55); box-shadow: 0 0 0 4px rgba(22,163,74,.18);}
+    .opt.wrong{border-color: rgba(220,38,38,.55); box-shadow: 0 0 0 4px rgba(220,38,38,.14);}
+
+    .shake{animation: shake .35s ease-in-out;}
+    @keyframes shake{
+      0%,100%{transform: translateX(0);}
+      25%{transform: translateX(-6px);}
+      50%{transform: translateX(6px);}
+      75%{transform: translateX(-4px);}
+    }
+
+    /* Modal */
+    dialog{
+      border: 0;
+      border-radius: 22px;
+      padding: 0;
+      max-width: 720px;
+      width: calc(100% - 28px);
+      box-shadow: 0 24px 60px rgba(0,0,0,.28);
+      overflow:hidden;
+    }
+    dialog::backdrop{ background: rgba(0,0,0,.32); backdrop-filter: blur(3px); }
+    .modalHead{
+      padding: 16px 16px 12px;
+      background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(124,58,237,.10));
+      border-bottom: 1px solid rgba(31,42,55,.10);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    }
+    .modalHead h3{margin:0;}
+    .modalBody{padding: 14px 16px 16px;}
+    .modalActions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; padding: 0 16px 16px;}
+
+    /* Print */
+    @media print{
+      header, .sprinkles, .noPrint{display:none !important;}
+      body{background:white;}
+      .card{box-shadow:none; border:1px solid #ddd;}
+      .grid{grid-template-columns: 1fr;}
+    }
+
+    /* Tiny confetti burst */
+    .burst{position:fixed; pointer-events:none; inset:0;}
+    .bit{
+      position:absolute; width:8px; height:8px; border-radius: 3px;
+      animation: pop .65s ease-out forwards;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+    }
+    @keyframes pop{
+      0%{transform: translate(0,0) scale(1); opacity:1;}
+      100%{transform: translate(var(--dx), var(--dy)) rotate(180deg) scale(.8); opacity:0;}
+    }
+
+    footer{
+      max-width:1100px; margin:0 auto; padding: 18px;
+      color: var(--muted);
+      font-weight:700;
+    }
+  </style>
+</head>
+<body>
+  <div class="sprinkles" aria-hidden="true" id="sprinkles"></div>
+  <div class="burst" aria-hidden="true" id="burst"></div>
+
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>S3 Family Afternoon Tea Quiz! ☕🧁</h1>
+            <div class="subtitle">We need your help to make a quiz about <b>us</b> for Wednesday.</div>
+          </div>
+        </div>
+        <div class="pillrow">
+          <div class="pill" title="Goal"><span>🎯</span> 2–3 questions each</div>
+          <div class="pill" title="Topics"><span>🧠</span> Me • Class • Trivia</div>
+          <div class="pill" title="Wednesday"><span>📅</span> Ask families</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="grid">
+        <!-- LEFT: Task + Builder -->
+        <section class="card">
+          <div class="sectionTitle">
+            <div class="badge" aria-hidden="true">🤝</div>
+            <h2>We need your help!</h2>
+          </div>
+          <p>
+            On <b>Wednesday</b>, your friends and family are coming for Afternoon Tea.
+            We want to ask them a fun quiz about <b>S3</b>.
+            <b>Your job:</b> think of <b>2–3 quiz questions</b> each.
+          </p>
+
+          <div class="steps">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <strong>Pick a type</strong>
+                <div class="hint">About you • Something funny/cool from class • Random trivia</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <strong>Write the question</strong>
+                <div class="hint">Keep it kind, safe, and family-friendly.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <strong>Add 3 answer choices</strong>
+                <div class="hint">One correct + two silly-but-possible choices!</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="builder" aria-label="Question builder">
+            <div class="row">
+              <label for="qType">Question type <span class="hint">(choose one)</span></label>
+              <select id="qType">
+                <option value="me">About Me</option>
+                <option value="class">About Our Class</option>
+                <option value="trivia">Random Trivia</option>
+              </select>
+            </div>
+
+            <div class="row">
+              <label for="qText">Your question <span class="hint">(example: “What is my favourite sport?”)</span></label>
+              <textarea id="qText" placeholder="Type your quiz question here..."></textarea>
+            </div>
+
+            <div class="row">
+              <label>Answer choices <span class="hint">(3 choices)</span></label>
+              <input id="a1" type="text" placeholder="Choice A" />
+              <input id="a2" type="text" placeholder="Choice B" />
+              <input id="a3" type="text" placeholder="Choice C" />
+            </div>
+
+            <div class="row">
+              <label for="correct">Which choice is correct? <span class="hint">(A, B, or C)</span></label>
+              <select id="correct">
+                <option value="0">A</option>
+                <option value="1">B</option>
+                <option value="2">C</option>
+              </select>
+            </div>
+
+            <div class="row">
+              <div class="callout">
+                <div class="icon" aria-hidden="true">✨</div>
+                <div>
+                  <strong>Tip:</strong> Don’t share private information (like addresses or phone numbers).
+                  Make questions that are fun and safe to say out loud.
+                </div>
+              </div>
+            </div>
+
+            <div class="row" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <button class="btn btnPrimary" id="addBtn" type="button">➕ Add my question</button>
+              <button class="btn btnSoft" id="randomBtn" type="button">🎲 Give me an idea</button>
+              <button class="btn btnSoft" id="printBtn" type="button">🖨️ Print my list</button>
+            </div>
+
+            <div class="row">
+              <label>My questions <span class="hint">(aim for 2–3)</span></label>
+              <div class="chips" id="chips"></div>
+              <div class="meter" aria-hidden="true"><div class="bar" id="bar"></div></div>
+              <p class="hint" id="progressText" style="margin-top:8px;">0 questions added. Goal: 2–3.</p>
+            </div>
+
+            <div class="row noPrint">
+              <button class="btn btnSoft" id="viewBtn" type="button">👀 View my questions nicely</button>
+              <button class="btn btnSoft" id="clearBtn" type="button">🧹 Clear all</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT: Trivia mini-game -->
+        <aside class="card">
+          <div class="sectionTitle">
+            <div class="badge" aria-hidden="true">🎮</div>
+            <h2>What is “trivia”?</h2>
+          </div>
+          <p>
+            <b>Trivia</b> means fun facts and questions about lots of different topics.
+            Let’s play a mini-game to see what trivia feels like!
+          </p>
+
+          <div class="gameTop">
+            <div class="scoreboard">
+              <div class="score" title="Correct answers"><span>✅</span> Score: <span id="score">0</span></div>
+              <div class="score" title="How many questions you’ve tried"><span>🎯</span> Tried: <span id="tried">0</span></div>
+              <div class="score" title="Streak"><span>🔥</span> Streak: <span id="streak">0</span></div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btnPrimary btnTiny" id="nextTrivia" type="button">Next trivia ▶</button>
+              <button class="btn btnSoft btnTiny" id="resetTrivia" type="button">Reset</button>
+            </div>
+          </div>
+
+          <div class="qbox" id="triviaBox" aria-live="polite">
+            <h3 id="tQuestion">Ready?</h3>
+            <div class="hint" id="tHint">Click “Next trivia” to start.</div>
+            <div class="options" id="tOptions"></div>
+            <div class="toast" id="toast">Tip: Try to guess, then read the explanation!</div>
+          </div>
+
+          <div class="callout" style="margin-top: 14px;">
+            <div class="icon" aria-hidden="true">🧁</div>
+            <div>
+              <strong>Family Quiz Rule:</strong> We ask kindly, we listen, and we laugh together.
+              Even if someone gets it wrong — that’s okay!
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="wrap">
+    <div>Made for S3 • One-page quiz helper • No sending required (just write, practice, and share in class!)</div>
+  </footer>
+
+  <!-- Modal for “nice view” + copy/print -->
+  <dialog id="modal">
+    <div class="modalHead">
+      <div>
+        <h3>My S3 Quiz Questions</h3>
+        <div class="hint">You can copy this into a document, or print it.</div>
+      </div>
+      <button class="btn btnSoft btnTiny" id="closeModal" type="button">✖ Close</button>
+    </div>
+    <div class="modalBody">
+      <div id="pretty"></div>
+    </div>
+    <div class="modalActions">
+      <button class="btn btnSoft" id="copyBtn" type="button">📋 Copy text</button>
+      <button class="btn btnPrimary" id="printModalBtn" type="button">🖨️ Print</button>
+    </div>
+  </dialog>
+
+  <script>
+    // ------- Decorative sprinkles -------
+    (function makeSprinkles(){
+      const holder = document.getElementById('sprinkles');
+      const colors = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22c55e'];
+      const count = 18;
+      for(let i=0;i<count;i++){
+        const d = document.createElement('div');
+        d.className = 'sprinkle';
+        d.style.left = Math.random()*100 + '%';
+        d.style.top = Math.random()*100 + '%';
+        d.style.background = colors[i % colors.length];
+        d.style.opacity = (0.6 + Math.random()*0.35).toFixed(2);
+        d.style.transform = `translateY(${Math.random()*10}px)`;
+        d.style.setProperty('--dur', (6 + Math.random()*7).toFixed(2) + 's');
+        d.style.width = (8 + Math.random()*10).toFixed(0) + 'px';
+        d.style.height = d.style.width;
+        holder.appendChild(d);
+      }
+    })();
+
+    // ------- Tiny confetti burst -------
+    function burstAt(x, y){
+      const holder = document.getElementById('burst');
+      const colors = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa','#22c55e'];
+      for(let i=0;i<18;i++){
+        const b = document.createElement('div');
+        b.className = 'bit';
+        b.style.left = x + 'px';
+        b.style.top = y + 'px';
+        b.style.background = colors[Math.floor(Math.random()*colors.length)];
+        const dx = (Math.random()*220 - 110).toFixed(0) + 'px';
+        const dy = (Math.random()*200 - 120).toFixed(0) + 'px';
+        b.style.setProperty('--dx', dx);
+        b.style.setProperty('--dy', dy);
+        holder.appendChild(b);
+        setTimeout(()=> b.remove(), 800);
+      }
+    }
+
+    // ------- Question Builder -------
+    const qType = document.getElementById('qType');
+    const qText = document.getElementById('qText');
+    const a1 = document.getElementById('a1');
+    const a2 = document.getElementById('a2');
+    const a3 = document.getElementById('a3');
+    const correct = document.getElementById('correct');
+    const chips = document.getElementById('chips');
+    const bar = document.getElementById('bar');
+    const progressText = document.getElementById('progressText');
+
+    const storeKey = 's3_quiz_questions_v1';
+    let questions = [];
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(storeKey);
+        if(raw) questions = JSON.parse(raw);
+      }catch(e){ questions = []; }
+    }
+    function save(){
+      localStorage.setItem(storeKey, JSON.stringify(questions));
+    }
+
+    function typeEmoji(t){
+      if(t==='me') return '🙋';
+      if(t==='class') return '🏫';
+      return '🧠';
+    }
+
+    function clamp(n,min,max){return Math.max(min, Math.min(max,n));}
+
+    function render(){
+      chips.innerHTML='';
+      questions.forEach((q, idx)=>{
+        const chip = document.createElement('div');
+        chip.className='chip';
+        chip.title='Click X to remove';
+        chip.innerHTML = `${typeEmoji(q.type)} <span>${escapeHtml(shorten(q.question, 42))}</span>`;
+
+        const x = document.createElement('div');
+        x.className='x';
+        x.textContent='×';
+        x.addEventListener('click', ()=>{
+          questions.splice(idx,1);
+          save();
+          render();
+        });
+        chip.appendChild(x);
+        chips.appendChild(chip);
+      });
+
+      // progress meter: 0..3
+      const pct = clamp((questions.length/3)*100, 0, 100);
+      bar.style.width = pct + '%';
+
+      const n = questions.length;
+      if(n===0) progressText.textContent = '0 questions added. Goal: 2–3.';
+      else if(n===1) progressText.textContent = '1 question added. Keep going — aim for 2–3!';
+      else if(n===2) progressText.textContent = '2 questions added. Nice! Add one more if you want.';
+      else if(n===3) progressText.textContent = '3 questions added. Perfect! (You can still swap or edit ideas.)';
+      else progressText.textContent = `${n} questions added. That’s lots! Maybe choose your best 2–3.`;
+    }
+
+    function shorten(s, max){
+      s = (s||'').trim();
+      if(s.length<=max) return s;
+      return s.slice(0, max-1) + '…';
+    }
+
+    function escapeHtml(str){
+      return (str||'').replace(/[&<>"']/g, m => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[m]));
+    }
+
+    function validate(){
+      const qt = qText.value.trim();
+      const c1 = a1.value.trim();
+      const c2 = a2.value.trim();
+      const c3 = a3.value.trim();
+      if(qt.length < 6) return 'Write a complete question (at least a few words).';
+      if(!c1 || !c2 || !c3) return 'Please fill in all three answer choices.';
+      const choices = [c1,c2,c3].map(s=>s.toLowerCase());
+      const set = new Set(choices);
+      if(set.size < 3) return 'Try to make the three choices different.';
+      return null;
+    }
+
+    function addQuestion(ev){
+      const msg = validate();
+      if(msg){
+        wiggle(qText);
+        toastMsg(msg, 'warn');
+        return;
+      }
+      const q = {
+        type: qType.value,
+        question: qText.value.trim(),
+        choices: [a1.value.trim(), a2.value.trim(), a3.value.trim()],
+        correctIndex: parseInt(correct.value, 10)
+      };
+      questions.push(q);
+      save();
+      render();
+
+      // celebratory burst
+      const rect = ev.currentTarget.getBoundingClientRect();
+      burstAt(rect.left + rect.width/2, rect.top + rect.height/2);
+
+      toastMsg('Added! Great question idea ✅', 'good');
+
+      // clear form for next
+      qText.value=''; a1.value=''; a2.value=''; a3.value=''; correct.value='0';
+      qText.focus();
+    }
+
+    function wiggle(el){
+      el.classList.remove('shake');
+      void el.offsetWidth; // reflow
+      el.classList.add('shake');
+    }
+
+    // Small toasts inside trivia box area
+    function toastMsg(text, kind){
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.style.borderColor = kind==='good' ? 'rgba(22,163,74,.35)' : kind==='warn' ? 'rgba(245,158,11,.35)' : 'rgba(220,38,38,.35)';
+      t.style.background = kind==='good' ? 'rgba(22,163,74,.08)' : kind==='warn' ? 'rgba(245,158,11,.10)' : 'rgba(220,38,38,.08)';
+      t.style.color = kind==='good' ? '#166534' : kind==='warn' ? '#92400e' : '#991b1b';
+    }
+
+    document.getElementById('addBtn').addEventListener('click', addQuestion);
+
+    // Idea generator
+    const ideaBank = {
+      me: [
+        {q:'What is my favourite food?', c:['Pizza','Sushi','Spaghetti'], k:0},
+        {q:'What is something I am really good at?', c:['Drawing','Football','Making jokes'], k:2},
+        {q:'What is my dream pet?', c:['A tiny dragon','A puppy','A turtle'], k:1}
+      ],
+      class: [
+        {q:'What is our class mascot or favourite character this year?', c:['A robot','A unicorn','A racing car'], k:0},
+        {q:'Which activity made us laugh the most this year?', c:['A silly game','A funny story','A surprise song'], k:0},
+        {q:'What is something cool we learned together?', c:['A science experiment','A magic trick','A secret handshake'], k:0}
+      ],
+      trivia: [
+        {q:'Which animal can sleep standing up?', c:['Horse','Dolphin','Penguin'], k:0},
+        {q:'How many legs does a spider have?', c:['6','8','10'], k:1},
+        {q:'What planet is known as the Red Planet?', c:['Mars','Jupiter','Neptune'], k:0}
+      ]
+    };
+
+    document.getElementById('randomBtn').addEventListener('click', ()=>{
+      const list = ideaBank[qType.value];
+      const pick = list[Math.floor(Math.random()*list.length)];
+      qText.value = pick.q;
+      a1.value = pick.c[0];
+      a2.value = pick.c[1];
+      a3.value = pick.c[2];
+      correct.value = String(pick.k);
+      burstAt(window.innerWidth*0.62, 120);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', ()=>{
+      questions = [];
+      save();
+      render();
+      toastMsg('Cleared. Ready for new ideas ✨', 'warn');
+    });
+
+    document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+    // ------- Modal “nice view” -------
+    const modal = document.getElementById('modal');
+    const pretty = document.getElementById('pretty');
+
+    function buildPretty(){
+      if(questions.length===0){
+        pretty.innerHTML = '<p><b>No questions yet.</b> Add 2–3 questions, then open this again.</p>';
+        return;
+      }
+      const groups = {me:[], class:[], trivia:[]};
+      questions.forEach(q=> groups[q.type].push(q));
+
+      const blocks = [];
+      const order = [
+        {k:'me', t:'About Me 🙋'},
+        {k:'class', t:'About Our Class 🏫'},
+        {k:'trivia', t:'Random Trivia 🧠'}
+      ];
+
+      order.forEach(({k,t})=>{
+        if(groups[k].length===0) return;
+        blocks.push(`<h4 style="margin:14px 0 8px;">${t}</h4>`);
+        groups[k].forEach((q, idx)=>{
+          const letters = ['A','B','C'];
+          const lines = q.choices.map((c,i)=> `${letters[i]}. ${escapeHtml(c)}`).join('<br>');
+          blocks.push(`
+            <div style="margin: 0 0 12px; padding: 12px; border-radius: 16px; border: 1px solid rgba(31,42,55,.12); background: rgba(255,255,255,.75);">
+              <div style="font-weight: 900; margin-bottom: 6px;">${escapeHtml(q.question)}</div>
+              <div style="color:#374151; font-weight: 800;">${lines}</div>
+              <div style="margin-top: 6px; color:#6b7280; font-weight: 800;">Correct answer: ${letters[q.correctIndex]}</div>
+            </div>
+          `);
+        });
+      });
+
+      pretty.innerHTML = blocks.join('');
+    }
+
+    document.getElementById('viewBtn').addEventListener('click', ()=>{
+      buildPretty();
+      modal.showModal();
+    });
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.close());
+
+    document.getElementById('printModalBtn').addEventListener('click', ()=> window.print());
+
+    document.getElementById('copyBtn').addEventListener('click', async ()=>{
+      const text = questionsToText();
+      try{
+        await navigator.clipboard.writeText(text);
+        toastMsg('Copied to clipboard! 📋', 'good');
+      }catch(e){
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        toastMsg('Copied! 📋', 'good');
+      }
+    });
+
+    function questionsToText(){
+      if(questions.length===0) return 'No questions yet.';
+      const letters = ['A','B','C'];
+      let out = 'My S3 Family Afternoon Tea Quiz Questions\n\n';
+      questions.forEach((q, i)=>{
+        out += (i+1) + '. [' + q.type.toUpperCase() + '] ' + q.question + '\n';
+        q.choices.forEach((c, j)=>{ out += '   ' + letters[j] + ') ' + c + '\n'; });
+        out += '   Correct: ' + letters[q.correctIndex] + '\n\n';
+      });
+      return out.trim();
+    }
+
+    // ------- Trivia mini-game -------
+    const trivia = [
+      {
+        q: 'Which planet is closest to the Sun?',
+        options: ['Mercury', 'Mars', 'Saturn'],
+        a: 0,
+        why: 'Mercury is the closest planet to the Sun.'
+      },
+      {
+        q: 'How many days are in a week?',
+        options: ['5', '7', '10'],
+        a: 1,
+        why: 'There are 7 days in a week.'
+      },
+      {
+        q: 'Which animal is famous for its black and white stripes?',
+        options: ['Zebra', 'Lion', 'Frog'],
+        a: 0,
+        why: 'Zebras have black and white stripes.'
+      },
+      {
+        q: 'What do bees make?',
+        options: ['Honey', 'Milk', 'Bread'],
+        a: 0,
+        why: 'Bees make honey from nectar.'
+      },
+      {
+        q: 'Which is the largest ocean on Earth?',
+        options: ['Pacific Ocean', 'Indian Ocean', 'Arctic Ocean'],
+        a: 0,
+        why: 'The Pacific Ocean is the largest.'
+      },
+      {
+        q: 'What is the name of a baby frog?',
+        options: ['Calf', 'Tadpole', 'Joey'],
+        a: 1,
+        why: 'A baby frog is called a tadpole.'
+      },
+      {
+        q: 'How many legs does an insect have?',
+        options: ['6', '8', '10'],
+        a: 0,
+        why: 'Insects have 6 legs.'
+      },
+      {
+        q: 'Which shape has 3 sides?',
+        options: ['Square', 'Triangle', 'Circle'],
+        a: 1,
+        why: 'A triangle has 3 sides.'
+      },
+      {
+        q: 'Which is a mammal?',
+        options: ['Shark', 'Dolphin', 'Octopus'],
+        a: 1,
+        why: 'Dolphins breathe air and are mammals.'
+      },
+      {
+        q: 'What do you call a story with a lesson?',
+        options: ['Fable', 'Recipe', 'Map'],
+        a: 0,
+        why: 'A fable is a story that teaches a lesson.'
+      }
+    ];
+
+    let idx = -1;
+    let score = 0;
+    let tried = 0;
+    let streak = 0;
+
+    const scoreEl = document.getElementById('score');
+    const triedEl = document.getElementById('tried');
+    const streakEl = document.getElementById('streak');
+    const tQuestion = document.getElementById('tQuestion');
+    const tHint = document.getElementById('tHint');
+    const tOptions = document.getElementById('tOptions');
+
+    function updateBoard(){
+      scoreEl.textContent = String(score);
+      triedEl.textContent = String(tried);
+      streakEl.textContent = String(streak);
+    }
+
+    function nextQ(){
+      idx = (idx + 1) % trivia.length;
+      const item = trivia[idx];
+      tQuestion.textContent = item.q;
+      tHint.textContent = 'Pick an answer!';
+      tOptions.innerHTML = '';
+
+      item.options.forEach((opt, i)=>{
+        const b = document.createElement('button');
+        b.className = 'opt';
+        b.type = 'button';
+        b.textContent = (['A','B','C'][i] + ') ' + opt);
+        b.addEventListener('click', (ev)=> choose(i, ev.currentTarget));
+        tOptions.appendChild(b);
+      });
+
+      toastMsg('What do you think? 🤔', 'warn');
+    }
+
+    function choose(i, btn){
+      const item = trivia[idx];
+      // lock buttons
+      const all = Array.from(tOptions.querySelectorAll('button'));
+      all.forEach(b=> b.disabled = true);
+
+      tried += 1;
+      if(i === item.a){
+        score += 1;
+        streak += 1;
+        btn.classList.add('correct');
+        toastMsg('Correct! ' + item.why + ' 🎉', 'good');
+        const r = btn.getBoundingClientRect();
+        burstAt(r.left + r.width/2, r.top + r.height/2);
+      }else{
+        streak = 0;
+        btn.classList.add('wrong');
+        // highlight correct one
+        all[item.a].classList.add('correct');
+        toastMsg('Nice try! ' + item.why + ' ✅', 'warn');
+      }
+      updateBoard();
+    }
+
+    document.getElementById('nextTrivia').addEventListener('click', nextQ);
+    document.getElementById('resetTrivia').addEventListener('click', ()=>{
+      idx = -1; score = 0; tried = 0; streak = 0;
+      updateBoard();
+      tQuestion.textContent = 'Ready?';
+      tHint.textContent = 'Click “Next trivia” to start.';
+      tOptions.innerHTML = '';
+      toastMsg('Reset! Let’s play again ✨', 'warn');
+    });
+
+    // ------- Init -------
+    load();
+    render();
+    updateBoard();
+
+    // Make Enter add question when focused on last field
+    a3.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        document.getElementById('addBtn').click();
+      }
+    });
+  </script>
+</body>
+</html>
